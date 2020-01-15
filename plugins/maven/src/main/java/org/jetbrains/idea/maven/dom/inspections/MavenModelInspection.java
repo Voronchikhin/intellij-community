@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.dom.inspections;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ObjectUtils;
 import com.intellij.util.xml.Converter;
 import com.intellij.util.xml.DomUtil;
 import com.intellij.util.xml.GenericDomValue;
@@ -58,6 +59,11 @@ public class MavenModelInspection extends BasicDomElementsInspection<MavenDomPro
   protected boolean shouldCheckResolveProblems(GenericDomValue value) {
     if (!isElementInsideManagedFile(value)) {
       return false;
+    }
+
+    String text = value.getRawText();
+    if(text!=null && text.startsWith("${")){
+      return true;
     }
 
     Converter converter = value.getConverter();

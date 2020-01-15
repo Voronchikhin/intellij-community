@@ -14,10 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.XmlDocument;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.psi.xml.XmlTagChild;
+import com.intellij.psi.xml.*;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.ObjectUtils;
@@ -34,10 +31,7 @@ import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenSchemaProvider;
-import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
-import org.jetbrains.idea.maven.dom.model.MavenDomProfile;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.dom.model.MavenDomSettingsModel;
+import org.jetbrains.idea.maven.dom.model.*;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.model.MavenConstants;
@@ -578,6 +572,15 @@ public class MavenPropertyPsiReference extends MavenPsiReference implements Loca
 
         DefaultXmlSuppressionProvider xmlSuppressionProvider = new DefaultXmlSuppressionProvider();
         xmlSuppressionProvider.suppressForTag(psiElement, MavenPropertyPsiReferenceProvider.UNRESOLVED_MAVEN_PROPERTY_QUICKFIX_ID);
+      }
+    }, new LocalQuickFixBase(MavenDomBundle.message("fix.create.new.maven.property")) {
+      @Override
+      public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
+        if (myProjectDom != null) {
+          MavenDomProperties properties = myProjectDom.getProperties();
+          XmlTag element = properties.ensureTagExists();
+          element.add(element.createChildTag(myText, element.getNamespace(), null, true));
+        }
       }
     }};
   }
